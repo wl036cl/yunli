@@ -1,0 +1,452 @@
+﻿<!--<!DOCTYPE html><html><head><meta charset="utf-8" /><title>Document</title></head><body></body></html>-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>运动项目</title>
+    <link href="/css/appbase.min.css" rel="stylesheet" />
+    <link href="/css/icon/iconfont.css" rel="stylesheet" />
+    <!--<link href="/css/login.min.css" rel="stylesheet"/>-->
+    <style type="text/css">
+        html,body{height:auto;}
+        #sport_ul {
+        }
+
+        #sport_ul .sport_li {
+            margin: 1rem 2%;
+            position: relative;
+            color: #fff;
+            line-height: 1.5;
+        }
+
+        #sport_ul li .li_content {
+            border-radius: .5rem;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+
+        #sport_ul li .tip {
+            position: absolute;
+            right: -7%;
+            top: 3%;
+            -webkit-transform: rotate(45deg);
+            transform: rotate(45deg);
+            padding: .5rem 2rem;
+            background: rgba(0, 255, 35, 0.6);
+            font-size: 1.2rem;
+        }
+
+        #sport_ul li .tip_over {
+            background: rgba(255, 0, 0, 0.6);
+        }
+
+        #sport_ul li .tip_deserted, #sport_ul li .tip_deleted {
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        #sport_ul li .tip_over, #sport_ul li .tip_deserted, #sport_ul li .tip_deleted {
+            padding: .5rem 2.5rem;
+            top: 2%;
+            right: -6.5%;
+        }
+
+        #sport_ul li .div_content {
+            padding: 1rem;
+        }
+
+        #sport_ul li .div_content .title {
+            font-size: 1.5rem;
+        }
+
+        #sport_ul li .div_content .target {
+            font-size: 1.3rem;
+        }
+
+        #sport_ul li .div_content .remark {
+            font-size: 1.2rem;
+        }
+
+        #sport_ul li .p_createtime {
+            padding: .5rem 1.5rem;
+            text-align: right;
+            background: rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            position: relative;
+        }
+
+        #sport_ul li .p_createtime .mes {
+            position: absolute;
+            left: 1rem;
+        }
+
+        #sport_ul li .p_createtime .mes font:first-child {
+            padding-right: 1rem;
+        }
+
+        #sport_ul li .actions_ul {
+            position: absolute;
+            top: 1%;
+            right: 0;
+            width: 50%;
+            height: 98%;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        #sport_ul li .actions_ul li {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            text-align: center;
+            padding-top: 15%;
+            border-radius: .5rem;
+        }
+
+        #sport_ul li .actions_ul li .iconfont {
+            font-size: 2.3rem;
+        }
+
+        #sport_ul li .actions_ul .edit_li {
+            background-color: #00CD4B;
+            margin-right: .5rem;
+        }
+
+        #sport_ul li .actions_ul .delete_li {
+            background-color: #686868;
+        }
+
+        #btn_add {
+            display: block;
+            width: 40%;
+            margin: 2rem auto 3rem;
+            text-align: center;
+            padding: .5rem 0;
+            background-color: #FCBA04;
+            border-radius: .5rem;
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        #btn_add .iconfont {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-right: .5rem;
+        }
+    </style>
+</head>
+<body>
+    <section id="sports_list" class="page">
+        <ul id="sport_ul">
+            <li class="sport_li" v-for="sport in sport_list" data-sid="{{sport.sportId}}">
+                <div class="li_content" v-bind:style="sport.bg_color">
+                    <span class="tip {{sport.status}}">{{sport.statusTip}}</span>
+                    <div class="div_content">
+                        <p class="title">{{sport.title}}</p>
+                        <p class="target">目标：{{sport.target}}&nbsp;{{sport.unit}}</p>
+                        <p class="remark">宣言：{{sport.remark}}</p>
+                    </div>
+                    <p class="p_createtime"><span class="mes"><font>{{sport.recordNum}}条记录</font><font v-show="sport.isPrivate">私人项目</font></span>{{sport.createTimeStr}}</p>
+                </div>
+                <ul class="actions_ul">
+                    <li class="edit_li"><i class="iconfont icon-edit"></i>
+                        <br />
+                        编辑</li>
+                    <li class="delete_li"><i class="iconfont icon-delete"></i>
+                        <br />
+                        删除</li>
+                </ul>
+            </li>
+        </ul>
+        <a id="btn_add" v-show="add_show" v-on:click="addSport"><i class="iconfont icon-tianjia"></i>添加</a>
+    </section>
+</body>
+<script src="/script/zeptojs.min.js"></script>
+<script src="/script/appbase.js"></script>
+<script src="/script/vue.js"></script>
+<script type="text/javascript">
+    var v_sport = new Vue({
+        el: '#sports_list',
+        data: {
+            colors: ['#EB1C22', '#F15928', '#F46523', '#F8931F', '#FEF200', '#8CC540', '#21B24B', '#09B3CD', '#2E3192', '#262163', '#652C93', '#92278F'],
+            bg_colors: ['#F8461F', '#f4b300', '#78ba00', '#1faeff', '#006ac1', '#008287', '#691bb8', '#001e4e', '#252525'],
+            sport_list: null,
+            userId: null,
+            token: null,
+            add_show: false,
+            touch: { x1: 0, x2: 0, y1: 0, y2: 0 }
+        },
+        methods: {
+            cleanData: function (data) {
+                if (data && data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        data[i].bg_color = "background-color:" + this.bg_colors[i % this.bg_colors.length] + ";";
+                        switch (Number(data[i].status)) {
+                            case 1:
+                                data[i].status = 'tip_ing';
+                                data[i].statusTip = '进行中'; break;
+                            case 2:
+                                data[i].status = 'tip_over';
+                                data[i].statusTip = '达成'; break;
+                            case 3:
+                                data[i].status = 'tip_deserted';
+                                data[i].statusTip = '放弃'; break;
+                            case 4:
+                                data[i].status = 'tip_deleted';
+                                data[i].statusTip = '删除'; break;
+                        }
+                        data[i].isPrivate = (data[i].isPrivate == 1 ? true : false);
+                    }
+                }
+                this.sport_list = data;
+                if (this.sport_list && this.sport_list.length > 10)//10个项目以内可以添加
+                    this.add_show = false;
+            },
+            getSports: function () {
+                if (this.userId && this.token) {
+                    var $this = this;
+                    $.ajax({
+                        type: 'GET',
+                        url: '/sport/getSports',
+                        data: { uid: $this.userId, token: $this.token, npage: 1 },
+                        success: function (a) {
+                            if (a.result == 0 || a.result == 1)
+                                $this.add_show = true;
+                            if (a.result == 1) {
+                                $this.cleanData(a.data);
+                            }
+                        },
+                        error: function (xhr, type) {
+                            console.log('联网失败，请检查网络！')
+                        }
+                    });
+                }
+                else
+                    history.go(-1);
+            },
+            addSport: function () {
+                localStorage['yunli_sportid'] = '';
+                window.parent.v_main.changeIframe('sportedit');
+            }
+        },
+        ready: function () {
+            this.userId = this.userId || localStorage["yunli_uid"];
+            this.token = this.token || localStorage["yunli_token"];
+            this.getSports();
+        }
+    });
+
+    var touchMove = {
+        touch: {
+            x1: 0,
+            y1: 0,
+            x2: 0,
+            y2: 0
+        },
+        speed: 300,//单位ms
+        _isPointerType: null,
+        el: null,
+        li_list: null,
+        obj_li: null,
+        win_width: 0,
+        starmove_left: 0,
+        isMove: false,//是否在li上
+        ishorizontally: -1,//是否水平移动0:垂直；1:水平
+        delta: 0,
+        moveToPage: function (index) {
+            if (index == 0) {
+                this.obj_li.removeClass("expand");
+                this.transform(this.obj_li, 0, true);
+            }
+            else if (index == 1) {
+                //移除其他
+                this.li_list = this.li_list || this.el.find(".li_content");
+                var $this = this;
+                this.li_list.each(function () {
+                    $this.transform($(this), 0, true);
+                }).removeClass('expand');
+
+                this.obj_li.addClass("expand");
+                this.transform(this.obj_li, -(this.win_width / 2), true);
+            }
+        },
+        transform: function (obj, newposX, isduration) {
+            //位移
+            var newtranslate3d = "translate3d(" + newposX + "px,0px,0px)";
+            if (isduration) {
+                var speed = this.speed + "ms";
+                obj.css({
+                    "-webkit-transition-duration": speed,
+                    "transition-duration": speed,
+                    "-webkit-transform": newtranslate3d,
+                    "transform": newtranslate3d,
+                });
+            } else {
+                obj.css({
+                    "-webkit-transition-duration": "0ms",
+                    "transition-duration": "0ms",
+                    "-webkit-transform": newtranslate3d,
+                    "transform": newtranslate3d,
+                });
+            }
+        },
+        swipeDirection: function (x1, x2, y1, y2, onlyhorizontal) {
+            if (onlyhorizontal)
+                return (x1 - x2 > 0 ? 'Left' : 'Right');
+            return Math.abs(x1 - x2) >=
+              Math.abs(y1 - y2) ? (x1 - x2 > 0 ? 'Left' : 'Right') : (y1 - y2 > 0 ? 'Up' : 'Down');
+        },
+        isPointerEventType: function (e, type) {
+            return (e.type == 'pointer' + type ||
+              e.type.toLowerCase() == 'mspointer' + type)
+        },
+        isPrimaryTouch: function (event) {
+            return (event.pointerType == 'touch' ||
+              event.pointerType == event.MSPOINTER_TYPE_TOUCH)
+        && event.isPrimary
+        },
+        bindEvent: function () {
+            var $this = this;
+            //设定事件
+            this.el.on('tap', function (e) {
+                if ($this.obj_li && $this.obj_li.length > 0) {
+                    if ($this.obj_li.hasClass('expand')) {
+                        var obj = event.srcElement || e.target; //FF只能识别event.target
+                        if ($(obj).hasClass('li_content') || $(obj).parents('.li_content').length > 0)
+                            $this.moveToPage(0, true);
+                        else {//选项
+                            if ($(obj).hasClass('edit_li') || $(obj).parents('.edit_li').length > 0)//编辑
+                            {
+                                var sportId = $this.obj_li.parent().attr('data-sid');
+                                if (Number(sportId) > 0) {
+                                    localStorage['yunli_sportid'] = sportId;
+                                    window.parent.v_main.changeIframe('sportedit');
+                                }
+                            }
+                            else if ($(obj).hasClass('delete_li') || $(obj).parents('.delete_li').length > 0) {//删除
+                                var sportId = $this.obj_li.parent().attr('data-sid');
+                                if (Number(sportId) > 0 && confirm('是否删除？')) {
+                                    ///删除
+                                    $.ajax({
+                                        type: 'GET',
+                                        url: '/sport/deleteSport',
+                                        data: { uid: v_sport.userId, token: v_sport.token, sid: sportId },
+                                        success: function (a) {
+                                            alert(a.msg);
+                                            if (a.result == 1) {
+                                                var index = $this.obj_li.parent().index();
+                                                $this.obj_li.parent().remove();
+                                                Number(index) > 0 && v_sport.sport_list.splice(index, 1);
+                                            }
+                                        },
+                                        error: function (xhr, type) {
+                                            console.log('联网失败，请检查网络！')
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    else//进入详情
+                    {
+                        var sportId = $this.obj_li.parent().attr('data-sid');
+                        localStorage['yunli_sportid'] = sportId;
+                        window.parent.v_main.changeIframe('sportrecords');
+                    }
+                }
+            }).on('touchstart MSPointerDown pointerdown', function (e) {
+                if (($this._isPointerType = $this.isPointerEventType(e, 'down')) &&
+               !$this.isPrimaryTouch(e)) return;
+
+                var obj = event.srcElement || e.target; //FF只能识别event.target
+                obj = $(obj).hasClass('li_content') ? $(obj) : $(obj).parents('.li_content');
+
+                if (obj.length > 0) {
+                    $this.obj_li = obj;
+                    $this.isMove = true;
+
+                    var first_touch = $this._isPointerType ? e : e.touches[0];
+                    $this.touch.x1 = first_touch.pageX;
+                    $this.touch.y1 = first_touch.pageY;
+                    $this.touch.x2 = 0
+                    $this.touch.y2 = 0;
+
+                    $this.delta = new Date();
+                    $this.starmove_left = $this.obj_li.offset().left;//起始偏移量
+                    $this.ishorizontally = -1;//是否水平移动0:垂直；1:水平
+                }
+                else
+                    $this.isMove = false;
+            }).on('touchmove MSPointerMove pointermove', function (e) {
+                if ($this.isMove) {
+                    if ($this.ishorizontally == 0)//开始垂直，就不在水平移动
+                        return;
+                    if (($this._isPointerType = $this.isPointerEventType(e, 'move')) &&
+                   !$this.isPrimaryTouch(e)) return;
+
+                    var move_touch = $this._isPointerType ? e : e.touches[0];
+                    $this.touch.x2 = move_touch.pageX;
+                    $this.touch.y2 = move_touch.pageY;
+                    if (($this.touch.x1 != 0 || $this.touch.y1 != 0) && ($this.touch.x2 != 0 || $this.touch.y2 != 0)) {
+                        var direction = $this.swipeDirection($this.touch.x1, $this.touch.x2, $this.touch.y1, $this.touch.y2);
+
+                        $this.ishorizontally = ($this.ishorizontally != -1 ? $this.ishorizontally : (direction == "Left" || direction == "Right") ? 1 : 0);
+
+                        if ($this.ishorizontally == 0)
+                            return;
+
+                        e.preventDefault();//可水平移动，去除系统(垂直)移动
+
+                        var newPoint = $this.touch.x2 - $this.touch.x1 + $this.starmove_left;
+
+                        if (newPoint > $this.win_width * 0.2)
+                            newPoint = $this.win_width * 0.2;
+                        if (newPoint < $this.win_width * (1 + 0.2) * -1)
+                            newPoint = $this.win_width * (1 + 0.2) * -1;
+                        if (newPoint >= 0 || newPoint <= -$this.win_width * 0.5)
+                            return;
+                        $this.transform($this.obj_li, newPoint);
+                    }
+                }
+            }).on('touchend MSPointerUp pointerup', function (e) {
+                if ($this.isMove) {
+                    if (($this._isPointerType = $this.isPointerEventType(e, 'up')) &&
+                     !$this.isPrimaryTouch(e)) return;
+
+                    if ($this.ishorizontally == 0 || $this.touch.x2 == 0)//垂直运行的||没有move
+                        return;
+
+                    $this.delta = new Date() - $this.delta;
+                    //快速滑动
+                    if ($this.delta < 320 && Math.abs($this.touch.x2 - $this.touch.x1) > 10) {
+                        var direction = $this.swipeDirection($this.touch.x1, $this.touch.x2, $this.touch.y1, $this.touch.y2, true);
+                        if (direction == "Left") {
+                            $this.moveToPage(1); return;
+                        } else if (direction == "Right") {
+                            $this.moveToPage(0); return;
+                        }
+                    }
+                    var newPoint = $this.touch.x2 - $this.touch.x1 + $this.starmove_left;
+                    if (newPoint > $this.win_width * 0.2)
+                        newPoint = $this.win_width * 0.2;
+                    if (newPoint < $this.win_width * (1 + 0.2) * -1)
+                        newPoint = $this.win_width * (1 + 0.2) * -1;
+                    if (newPoint > $this.win_width * 0.15 * -1)
+                        $this.moveToPage(0);
+                    else
+                        $this.moveToPage(1);
+                }
+            });
+        },
+        init: function (_el) {
+            var $this = this;
+            this.el = _el;
+            this.win_width = _el.width();
+            this.bindEvent();
+        }
+    }
+    touchMove.init($("#sport_ul"));
+</script>
+</html>

@@ -1,0 +1,222 @@
+﻿<!--<!DOCTYPE html><html><head><meta charset="utf-8" /><title>Document</title></head><body></body></html>-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>添加项目</title>
+    <link href="/css/appbase.min.css" rel="stylesheet" />
+    <link href="/css/icon/iconfont.css" rel="stylesheet" />
+    <style type="text/css">
+        html,body{height:auto;}
+        .edit_bg {
+            padding-top: 1rem;
+        }
+
+        .edit_bg p {
+            margin: 1rem auto;
+            width: 100%;
+            text-align: center;
+            position:relative;
+        }
+        .edit_bg p datalist{
+            /*width: 80%;
+            padding:0 4%;
+            position:absolute;
+               top: 2.8rem;
+    left: 6%;
+    background-color:#fff;*/
+        } .edit_bg p datalist option{
+              text-align:left;
+             
+          }
+        .edit_bg p:nth-last-child(2) {
+            text-align: left;
+        }
+
+        .edit_bg p:nth-last-child(2) label {
+            margin-left: 7%;
+            color: #BDBDBD;
+        }
+
+        .edit_bg p input[type='text'], .edit_bg p input[type='tel'], .edit_bg p input[type='search'] {
+            background-color: #fff;
+            padding: .6rem 4%;
+            width: 80%;
+            border-radius: 1rem;
+            font-family: "黑体";
+        }
+
+        #btn_edit {
+            margin: 4rem auto;
+            border-radius: .5rem;
+            background-color: #FCBA04;
+            display: block;
+            width: 50%;
+            text-align: CENTER;
+            color: #fff;
+            font-size: 1.5rem;
+            padding: .5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <section id="sport_edit" class="page">
+        <div class="edit_bg">
+            <p v-for="tr_td in tr_tds">
+                <label for="{{tr_td.input_id}}">{{tr_td.title}}</label>
+                <input id="{{tr_td.input_id}}" list="list_{{tr_td.input_id}}" v-model="tr_td.value" maxlength="{{tr_td.maxlength}}" placeholder="{{tr_td.placeholder}}" type="{{tr_td.type}}" />
+                <datalist v-show="tr_td.list_show" id="list_{{tr_td.input_id}}">
+                    <option v-for="w in tr_td.list_data" value="{{w.word}}">
+                </datalist>
+            </p>
+            <a id="btn_edit" v-on:click="editSport">{{btn_text}}</a>
+        </div>
+    </section>
+</body>
+<script src="/script/zeptojs.min.js"></script>
+<script src="/script/appbase.js"></script>
+<script src="/script/vue.js"></script>
+<script type="text/javascript">
+    var v_sport_edit = new Vue({
+        el: '#sport_edit',
+        data: {
+            msg_class: 'red',
+            msg: '',
+            userId: null,
+            token: null,
+            sportId: null,
+            btn_text: '添加',
+            tr_tds: [
+                { title: '', input_id: 'txt_title', maxlength: '20', placeholder: '项目名称', type: 'text', value: '',list_show:false,list_data:null },
+                { title: '', input_id: 'txt_target', maxlength: '20', placeholder: '项目目标', type: 'tel', value: '', list_show: false, list_data: null },
+                { title: '', input_id: 'txt_unit', maxlength: '4', placeholder: '计量单位', type: 'text', value: '', list_show: false, list_data: null },
+                { title: '', input_id: 'txt_remark', maxlength: '200', placeholder: '运动宣言', type: 'text', value: '', list_show: false, list_data: null },
+                { title: '是否私有：', input_id: 'txt_isprivate', maxlength: '0', placeholder: '是否私有', type: 'checkbox', value: false, show: false, list_show: false, list_data: null }
+            ]
+        },
+        methods: {
+            cleanWordsData: function (data) {
+                if (data && data.length > 0)
+                {
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i][0].type == 1)
+                        {
+                            this.tr_tds[0].list_show = true;
+                            this.tr_tds[0].list_data = data[i];
+                        }
+                        if (data[i][0].type == 2) {
+                            this.tr_tds[2].list_show = true;
+                            this.tr_tds[2].list_data = data[i];
+                        }
+                    }
+                }
+            },
+            getWords: function () {
+                var $this = this;
+                var types = "1,2";
+                $.ajax({
+                    type: 'GET',
+                    url: '/word/getWords',
+                    data: { type: types },
+                    success: function (a) {
+                        if (a.result == 1) {
+                            $this.cleanWordsData(a.data);
+                        }
+                    },
+                    error: function (xhr, type) {
+                        console.log('联网失败，请检查网络！')
+                    }
+                });
+            },
+            getSport: function () {
+                if (this.userId && this.token) {
+                    if (this.sportId) {
+                        var $this = this;
+                        $.ajax({
+                            type: 'GET',
+                            url: '/sport/getSport',
+                            data: { uid: $this.userId, token: $this.token, sid: $this.sportId },
+                            success: function (a) {
+                                if (a.result == 1) {
+                                    $this.cleanData(a.data);
+                                }
+                                else {
+                                    alert(a.msg);
+                                    histroy.go(-1);
+                                    //window.parent.v_main.changeIframe('sports');
+                                }
+                            },
+                            error: function (xhr, type) {
+                                console.log('联网失败，请检查网络！')
+                            }
+                        });
+                    }
+                }
+                else
+                    history.go(-1);
+            },
+            cleanData: function (data) {
+                this.tr_tds[0].value = data.title;
+                this.tr_tds[1].value = data.target;
+                this.tr_tds[2].value = data.unit;
+                this.tr_tds[3].value = data.remark;
+                this.tr_tds[4].value = (data.isPrivate == 1 ? true : false);
+
+                this.btn_text = "更新";
+            },
+            editSport: function () {
+                var data = { uid: this.userId, token: this.token, sid: this.sportId, title: this.tr_tds[0].value, target: this.tr_tds[1].value, unit: this.tr_tds[2].value, remark: this.tr_tds[3].value, isprivate: this.tr_tds[4].value };
+                var err = this.checkData(data);
+                if (err.length > 0)
+                    alert(err);
+                else
+                {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/sport/addOrEditSport',
+                        data: data,
+                        success: function (a) {
+                            if (a.result == 1) {
+                                alert(a.msg);
+                                window.parent.v_main.iframe_refresh = true;
+                                history.go(-1);
+                                //window.parent.v_main.changeIframe('sports');
+                            }
+                            else
+                                alert(a.msg);
+                        },
+                        error: function (xhr, type) {
+                            console.log('联网失败，请检查网络！')
+                        }
+                    });
+                }
+            },
+            checkData: function (data) {
+                var err = "";
+                if (data.title.length == 0)
+                    err += '名称不能为空,';
+                if (Number(data.target) == NaN)
+                    err += '目标不能为空,';
+                if (data.unit.length == 0)
+                    err += '计量单位不能为空,';
+                if (data.remark.length == 0)
+                    err += '运动宣言不能为空,';
+                if (err.length > 0) {
+                    err = err.substr(0, err.length - 1) + '！';
+                }
+                return err;
+            }
+        },
+        ready: function () {
+            this.userId = this.userId || localStorage["yunli_uid"];
+            this.token = this.token || localStorage["yunli_token"];
+            this.sportId = this.sportId || localStorage['yunli_sportid'];
+            if (this.sportId)
+                document.title = "编辑项目";
+            this.getWords();
+            this.getSport();
+        }
+    });
+</script>
+</html>

@@ -1,0 +1,208 @@
+﻿﻿<!--<!DOCTYPE html><html><head><meta charset="utf-8" /><title>Document</title></head><body></body></html>-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>运力</title>
+    <link href="css/appbase.min.css" rel="stylesheet" />
+    <link href="css/icon/iconfont.css" rel="stylesheet" />
+    <link href="css/login.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="wlui" class="index">
+        <header id="header">
+            <ul id="header_ul">
+                <li v-on:click="goBack"><i v-show="back_show" class="iconfont icon-houtui"></i></li>
+                <li id="head_title">{{title}}</li>
+                <li id="head_menu" v-on:click="openNav"><i class="iconfont icon-ellipsisv"></i></li>
+            </ul>
+        </header>
+        <nav id="menu_list" v-show="show" transition="slide_right">
+            <ul id="menu_ul">
+                <li class="userInfo border_1">
+                    <img class="userHead" v-bind:src="userHead" /><span class="userName">{{userName}}</span>
+                </li>
+                <li class="border_2">运动项目</li>
+                <li class="border_3">身体指数</li>
+                <li class="border_4">设&nbsp;&nbsp;&nbsp;&nbsp;置</li>
+                <li class="border_5">关&nbsp;&nbsp;&nbsp;&nbsp;于</li>
+                <li class="border_6" v-on:click="signOut">退&nbsp;&nbsp;&nbsp;&nbsp;出</li>
+            </ul>
+        </nav>
+        <div id="main">
+            <iframe id="main_iframe" v-bind:style="iframe_style"></iframe>
+            <div id="hide" v-show="hideShow" v-on:click="showHide(false)"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="http://pingjs.qq.com/h5/stats.js" name="MTAH5" sid="500120133" ></script>
+</body>
+<script src="script/zeptojs.min.js"></script>
+<script src="script/appbase.js"></script>
+<script src="script/vue.js"></script>
+<script type="text/javascript">
+    var v_header = new Vue({
+        el: '#header',
+        data: {
+            li_head_menu: null,
+            title: '标题',
+            back_show: false,
+            back_iframe: '',
+            //back_title:'',
+        },
+        methods: {
+            openNav: function () {
+                this.li_head_menu = this.li_head_menu || $("#head_menu");
+                v_nav.show = !v_nav.show;
+                if (v_nav.show) {
+                    v_main.showHide(true);
+                    $(this.li_head_menu).addClass("select");
+                }
+                else {
+                    v_main.showHide(false);
+                    $(this.li_head_menu).removeClass("select");
+                }
+            },
+            goBack: function () {
+                if (this.back_show && this.back_iframe) {
+                    history.go(-1);
+                    //v_main.changeIframe(this.back_iframe);
+                }
+            }
+        }
+    });
+    var v_nav = new Vue({
+        el: '#menu_list',
+        data: {
+            show: false,
+            userId: null,
+            token: null,
+            userHead: 'http://img2.peiyinxiu.com/web/detail_bg_head_self.png',
+            userName: '匿名',
+        },
+        methods: {
+            getUser: function () {
+                this.userId = this.userId || getQueryString("uid") || localStorage["yunli_uid"];
+                this.token = this.token || getQueryString("token") || localStorage["yunli_token"];
+                if (this.userId && this.token) {
+                    var $this = this;
+                    $.ajax({
+                        type: 'GET',
+                        url: '/user/getuser',
+                        data: { oauthUId: $this.userId, oauthToken: $this.token },
+                        success: function (a) {
+                            if (a.result == 1) {
+                                //本地缓存
+                                localStorage["yunli_uid"] = a.uid;
+                                localStorage["yunli_token"] = a.token;
+                                $this.userHead = a.uhead;
+                                $this.userName = a.uname;
+                            }
+                            else
+                                goTo('/login.html');
+                        },
+                        error: function (xhr, type) {
+                            console.log('联网失败，请检查网络！')
+                        }
+                    });
+                } else
+                    goTo('/login.html');
+            },
+            signOut: function () {
+                localStorage["yunli_uid"] = '';
+                localStorage["yunli_token"] = '';
+                goTo('/login.html');
+            }
+        },
+        ready: function () {
+            //获取用户信息
+            this.getUser();
+        }
+    });
+    var v_main = new Vue({
+        el: '#main',
+        data: {
+            hideShow: false,
+            iframe: null,
+            nav_lis: null,
+            iframe_refresh: false,
+            iframe_style: { width: '100%', height: '100%' }
+        },
+        methods: {
+            showHide: function (tf) {
+                if (tf) {
+                    this.hideShow = true;
+                    $(obj_wl).on('touchmove MSPointerMove pointermove', function (e) { e.preventDefault(); });
+                }
+                else {
+                    this.hideShow = false;
+                    $(obj_wl).off();
+                    //隐藏侧边栏
+                    v_nav.show && v_header.openNav();
+                }
+            },
+            //iframeLoad: function (obj) {
+            //    //判断返回按钮
+            //},
+            //iframeCheck: function () {
+
+            //},
+            changeIframe: function (iframe) {
+                if (!this.iframe) {
+                    this.iframe = $("#main_iframe")[0];
+                    var $this = this;
+                    this.iframe.onload = function () {
+                        v_header.title = this.contentDocument.title;
+                        if (["运动项目"].indexOf(v_header.title) > -1)//判断换回按钮是否显示
+                            v_header.back_show = false; //清除后退按钮
+                        if ($this.iframe_refresh) {
+                            $this.iframe_refresh = false;
+                            this.contentDocument.location.reload();
+                        }
+                        //清除广告JS
+                    }
+                }
+                this.iframe_style.height = $("#main").height() + 'px';
+                this.nav_lis = this.nav_lis || $("#menu_ul li");
+                $(this.nav_lis).removeClass('select');
+
+                v_header.back_show = false; //清除后退按钮
+
+                switch (iframe) {
+                    case 'sports':
+                        this.iframe.src = 'html/sports.html';
+                        this.nav_lis.length > 2 && $(this.nav_lis[1]).addClass('select');
+                        break;
+                    case 'sportedit':
+                        this.iframe.src = 'html/sportedit.html';
+                        this.nav_lis.length > 2 && $(this.nav_lis[1]).addClass('select');
+                        //后退按钮
+                        v_header.back_show = true;
+                        v_header.back_iframe = 'sports';
+                        //v_header.back_title = '运动项目';
+                        break;
+                    case 'sportrecords':
+                        this.iframe.src = 'html/sportrecords.html';
+                        this.nav_lis.length > 2 && $(this.nav_lis[1]).addClass('select');
+                        //后退按钮
+                        v_header.back_show = true;
+                        v_header.back_iframe = 'sports';
+                        //v_header.back_title = '运动项目';
+                        break;
+                    case 'sportrecordedit':
+                        this.iframe.src = 'html/sportrecordedit.html';
+                        this.nav_lis.length > 2 && $(this.nav_lis[1]).addClass('select');
+                        //后退按钮
+                        v_header.back_show = true;
+                        v_header.back_iframe = 'sportrecords';
+                        //v_header.back_title = '运动记录';
+                        break;
+                }
+            }
+        },
+        ready: function () {
+            this.changeIframe('sports');
+        }
+    });
+</script>
+</html>

@@ -1,0 +1,193 @@
+﻿<!--<!DOCTYPE html><html><head><meta charset="utf-8" /><title>Document</title></head><body></body></html>-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>登录</title>
+    <link href="css/icon/iconfont.css" rel="stylesheet"/>
+    <link href="css/appbase.min.css" rel="stylesheet"/>
+    <link href="css/login.min.css" rel="stylesheet"/>
+</head>
+<body>
+<div id="wlui" class="login">
+    <div id="login" class="page" v-show="show" transition="left">
+        <table id="table_login">
+            <tr v-for="tr_td in tr_tds">
+                <td><i class="iconfont {{tr_td.icon}}"></i></td>
+                <td colspan="2">
+                    <input id="{{tr_td.input_id}}" v-model="tr_td.value" maxlength="{{tr_td.maxlength}}"
+                           placeholder="{{tr_td.placeholder}}" type="{{tr_td.type}}"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3"><span id="span_msg" class="{{ msg_class }}">{{msg}}</span></td>
+            </tr>
+            <tr>
+                <td colspan="3"><input id="btn_login" type="button" v-on:click="clickLogin" value="Sign in"></td>
+            </tr>
+            <tr>
+                <td colspan="3"><a id="btn_toregister" v-on:click=" toRegiter" class="btn btn_link">Sign up</a></td>
+            </tr>
+        </table>
+    </div>
+    <div id="register" class="page" v-show="show" transition="right">
+        <table id="table_register">
+            <tr v-for="tr_td in tr_tds">
+                <td><i class="iconfont {{tr_td.icon}}"></i></td>
+                <td colspan="2">
+                    <input id="{{tr_td.input_id}}" v-model="tr_td.value" maxlength="{{tr_td.maxlength}}"
+                           placeholder="{{tr_td.placeholder}}" type="{{tr_td.type}}"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3"><span id="span_msg" class="{{ msg_class }}">{{msg}}</span></td>
+            </tr>
+            <tr>
+                <td colspan="3"><input id="btn_register" type="button" v-on:click="clickRegister" value="Sign up"></td>
+            </tr>
+            <tr>
+                <td colspan="3"><a id="btn_tologin" v-on:click=" toLogin" class="btn btn_link">Sign in</a></td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+</body>
+<script src="script/zeptojs.min.js"></script>
+<script src="script/appbase.js"></script>
+<script src="script/vue.js"></script>
+<!--<script src="script/login.js"></script>-->
+<script type="text/javascript">
+    var v_login = new Vue({
+        el: '#login',
+        data: {
+            show:true,
+            msg_class:'red',
+            msg: '',
+            tr_tds: [
+                { icon: 'icon-myfill', input_id: 'txt_uname', maxlength: '20', placeholder: 'Account', type: 'text', value: ''},
+                { icon: 'icon-lock', input_id: 'txt_upsd', maxlength: '20', placeholder: 'Password', type: 'password', value: '' },
+                { icon: 'icon-yanzhengma', input_id: 'txt_code', maxlength: '3', placeholder: 'Verification', type: 'tel', value: ''}
+            ]
+        },
+        ready: function () {
+            if (localStorage["yunli_uid"] && localStorage["yunli_token"]) {
+                this.signIn(localStorage["yunli_uid"], localStorage["yunli_token"], 2);//token登录;
+            }
+        },
+        methods: {
+            toRegiter: function (e) {
+                this.show = false;
+                v_register.show = true;
+            },
+            signIn: function (_oauthUId, _oauthToken, _type) {
+                var $this = this;
+                $.ajax({
+                    type: 'GET',
+                    url: '/user/loginin',
+                    data: { oauthUId: _oauthUId, oauthToken: _oauthToken, type: _type },
+                    success: function (a) {
+                        if (a.result == 1) {
+                            $this.msg_class = 'green';
+                            $this.msg = a.msg;
+                            //本地缓存
+                            localStorage["yunli_uid"] = a.uid;
+                            localStorage["yunli_token"] = a.token;
+                            goTo('/index.html');
+                        }
+                        else {
+                            $this.msg_class = 'red';
+                            $this.msg = "登录失败！";
+                            if (a.result == 0)
+                                $this.msg = a.msg;
+                        }
+                    },
+                    error: function (xhr, type) {
+                        alert('联网失败，请检查网络！')
+                    }
+                });
+            },
+            clickLogin: function (e) {
+                var msg = "";
+                if (!/[\u4e00-\u9fa5 \w]{6,20}/.test(this.tr_tds[0].value))
+                    msg += "用户名为6-20位汉字，数字或字母组合！";
+                else if (!/\w{6,20}/.test(this.tr_tds[1].value))
+                    msg += "密码为6-20位数字或字母组合！";
+                if (msg.length > 0) {
+                    this.msg = msg;
+                    this.msg_class = 'red';
+                    return;
+                }
+                else {
+                    this.signIn(this.tr_tds[0].value, this.tr_tds[1].value,1);
+                }
+            }
+        }
+    });
+    var v_register = new Vue({
+        el: '#register',
+        data: {
+            show:false,
+            msg_class:'red',
+            msg: '',
+            tr_tds: [
+                { icon: 'icon-myfill', input_id: 'txt_runame', maxlength: '20', placeholder: 'Account', type: 'text', value: ''},
+                { icon: 'icon-email', input_id: 'txt_remail', maxlength: '50', placeholder: 'Email', type: 'email', value: '' },
+                { icon: 'icon-lock', input_id: 'txt_rupsd', maxlength: '20', placeholder: 'Password', type: 'password', value: '' },
+                { icon: 'icon-lock', input_id: 'txt_rupsd2', maxlength: '20', placeholder: 'Password', type: 'password', value: '' }
+            ]
+        },
+        methods: {
+            toLogin: function (e) {
+                this.show=false;
+                v_login.show=true;
+            },
+            signUp: function () {
+                var $this = this;
+                $.ajax({
+                    type: 'POST',
+                    url: '/user/register',
+                    data: { phone: this.tr_tds[0].value, email: this.tr_tds[1].value, password: this.tr_tds[2].value, password2: this.tr_tds[3].value },
+                    success: function (a) {
+                        if (a.result == 1) {
+                            $this.msg_class = 'green';
+                            $this.msg = a.msg;
+                            $this.toLogin();
+                        }
+                        else {
+                            $this.msg_class = 'red';
+                            $this.msg = "注册失败！";
+                            if (a.result == 0)
+                                $this.msg = a.msg;
+                        }
+                    },
+                    error: function (xhr, type) {
+                        alert('联网失败，请检查网络！')
+                    }
+                });
+
+            },
+            clickRegister: function (e) {
+                var msg = "";
+                if (!/[\u4e00-\u9fa5 \w]{6,20}/.test(this.tr_tds[0].value))
+                    msg += "用户名为6-20位汉字，数字或字母组合！";
+                else if (!/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(this.tr_tds[1].value))
+                    msg += "email格式不正确！";
+                else if(!/\w{6,20}/.test(this.tr_tds[2].value))
+                    msg += "密码为6-20位数字或字母组合！";
+                else if(this.tr_tds[2].value!=this.tr_tds[3].value)
+                    msg += "两次密码不一致！";
+                if (msg.length > 0) {
+                    this.msg = msg;
+                    this.msg_class = 'red';
+                    return;
+                }
+                else {
+                    this.signUp();
+                }
+            }
+        }
+    });
+</script>
+</html>

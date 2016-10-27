@@ -1,0 +1,444 @@
+﻿<!--<!DOCTYPE html><html><head><meta charset="utf-8" /><title>Document</title></head><body></body></html>-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>项目记录</title>
+    <link href="/css/appbase.min.css" rel="stylesheet" />
+    <link href="/css/icon/iconfont.css" rel="stylesheet" />
+    <style type="text/css">
+        html,body{height:auto;}
+        .sport_content {
+            border-radius: .5rem;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+            background-color: #F8461F;
+            width: 96%;
+            margin: 1rem auto;
+            color: #fff;
+            line-height: 1.5;
+        }
+
+        .sport_content .div_content {
+            padding: 1rem;
+        }
+
+        .sport_content .title {
+            font-size: 1.5rem;
+        }
+
+        .sport_content .target {
+            font-size: 1.3rem;
+        }
+
+        .sport_content .remark {
+            font-size: 1.2rem;
+        }
+
+        .sport_content .p_createtime {
+            padding: .5rem 1.5rem;
+            text-align: right;
+            background: rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            position: relative;
+        }
+
+        .sport_content .p_createtime .mes {
+            position: absolute;
+            left: 1rem;
+        }
+
+        .sport_content .p_createtime .mes font:first-child {
+            padding-right: 1rem;
+        }
+
+        .sport_content .tip {
+            position: absolute;
+            right: -7%;
+            top: 3%;
+            -webkit-transform: rotate(45deg);
+            transform: rotate(45deg);
+            padding: .5rem 2rem;
+            background: rgba(0, 255, 35, 0.6);
+            font-size: 1.2rem;
+        }
+
+        .sport_content .tip_over, .sport_content .tip_deserted, .sport_content .tip_deleted {
+            padding: .5rem 2.5rem;
+            top: 2%;
+            right: -6.5%;
+        }
+
+        .sport_content .tip_over {
+            background-color: rgba(255, 0, 0, 0.6);
+        }
+
+        .sport_content .tip_deserted {
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        #record_ul {
+            width: 96%;
+            margin: 1rem auto;
+        }
+
+        #record_ul .record_li {
+            margin: 1rem auto;
+            background-color: #fff;
+            border-radius: .5rem;
+            padding: .5rem 1rem;
+            line-height: 1.3;
+            position: relative;
+        }
+
+        #record_ul .record_li .time {
+            font-size: 1.2rem;
+            color: gray;
+        }
+
+        #record_ul .record_li .btn_delete {
+            position: absolute;
+            right: 5%;
+            top: 32%;
+            color: #f00;
+        }
+
+        #btn_add {
+            display: block;
+            width: 40%;
+            margin: 2rem auto 3rem;
+            text-align: center;
+            padding: .5rem 0;
+            background-color: #FCBA04;
+            border-radius: .5rem;
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        #btn_add .iconfont {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-right: .5rem;
+        }
+
+        #menu_ul {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-orient: vertical;
+            text-align: center;
+            color: #fff;
+            width: 96%;
+            margin: 0 auto;
+            border-radius: .5rem;
+        }
+
+        #menu_ul li {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            padding: .5rem 0;
+            background: -webkit-linear-gradient(top, #4E4E4E, #353535); /* Safari 5.1 - 6.0 */
+            background: linear-gradient(to bottom, #4E4E4E, #353535); /* 标准的语法 */
+        }
+
+        #menu_ul li.select {
+            background: -webkit-linear-gradient(top, #2D2D2D, #191919); /* Safari 5.1 - 6.0 */
+            background: linear-gradient(to bottom, #2D2D2D, #191919); /* 标准的语法 */
+        }
+
+        #record_list,#line_chart{
+            position:absolute;
+            width:96%;
+            margin:0 2%;
+        }
+
+        #line_chart #line_canvas {
+            width: 100%;
+            padding-top: 2rem;
+        }
+        /* 必需 */
+        .left-transition, .right-transition {
+            -webkit-transition: all .4s ease;
+            transition: all .4s ease;
+            opacity: 1;
+            -webkit-transform: translateX(0%);
+            transform: translateX(0%);
+        }
+        /* .expand-enter 定义进入的开始状态 */
+        /* .expand-leave 定义离开的结束状态 */
+        .left-enter, .left-leave {
+            opacity: 0;
+            -webkit-transform: translateX(-100%);
+            transform: translateX(-100%);
+        }
+        /* .expand-enter 定义进入的开始状态 */
+        /* .expand-leave 定义离开的结束状态 */
+        .right-enter, .right-leave {
+            opacity: 0;
+            -webkit-transform: translateX(100%);
+            transform: translateX(100%);
+        }
+
+        #line_type_ul {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-orient: vertical;
+            text-align: center;
+            width: 90%;
+            margin: 1rem auto;
+            color: gray;
+        }
+
+        #line_type_ul li {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            padding: .5rem 0;
+            border-bottom: 1px solid transparent;
+        }
+
+        #line_type_ul li.select {
+            color: #fff;
+            border-bottom: 1px solid #fff;
+        }
+    </style>
+</head>
+<body>
+    <section id="records_list" class="page">
+        <div class="sport_content" style="background-color: #F8461F">
+            <span class="tip {{sport.status}}">{{sport.statusTip}}</span>
+            <div class="div_content">
+                <p class="title">{{sport.title}}</p>
+                <p class="target">目标：{{sport.target}}&nbsp;{{sport.unit}}</p>
+                <p class="remark">宣言：{{sport.remark}}</p>
+            </div>
+            <p class="p_createtime"><span class="mes"><font>{{sport.recordNum}}条记录</font><font v-show="sport.isPrivate">私人项目</font></span>{{sport.createTimeStr}}</p>
+        </div>
+        <ul id="menu_ul" v-show="menu_show" v-on:click="changePage($event)">
+            <li class="select" data-type="record_list">列表</li>
+            <li data-type="line_chart">线图</li>
+        </ul>
+        <div id="record_list" v-show="pages[0].show" transition="left">
+            <ul id="record_ul">
+                <li class="record_li" v-for="record in record_list" data-rid="{{record.recordId}}">
+                    <p class="num">完成：{{record.recordNum}}&nbsp;{{sport.unit}}</p>
+                    <p class="remark" v-show="record.remark_show">心得：{{record.remark}}</p>
+                    <p class="time">时间：{{record.recordTimeStr}}</p>
+                    <a class="btn_delete" v-on:click="recordDelete($event)">删除</a>
+                </li>
+            </ul>
+            <a id="btn_add" v-show="add_show" v-on:click="addRecord"><i class="iconfont icon-tianjia"></i>添加</a>
+        </div>
+        <div id="line_chart" v-show="pages[1].show" transition="right">
+            <ul id="line_type_ul" v-show="lineType.show" v-on:click="changeChart($event)">
+                <li v-for="type in lineType.data" :class="{'select':type.isselect}" v-show="type.show" data-type="{{type.type}}">
+                    {{type.text}}
+                </li>
+            </ul>
+            <canvas id="line_canvas"></canvas>
+        </div>
+    </section>
+</body>
+<script src="/script/zeptojs.min.js"></script>
+<script src="/script/appbase.js"></script>
+<script src="/script/vue.js"></script>
+<script src="/script/chart.js"></script>
+<script type="text/javascript">
+    var v_record = new Vue({
+        el: '#records_list',
+        data: {
+            userId: null,
+            token: null,
+            sportId: null,
+            sport: null,
+            record_list: null,
+            record_length: 0,
+            add_show: false,
+            menu_show: false,
+            pages: [{ id: 'record_list', show: true }, { id: 'line_chart', show: false }],
+            lineType: {
+                show: false,
+                data: [{ type: "seven", isselect: false, show: false, text: "近7次", num: 7 }, { type: "fifteen", isselect: false, show: false, text: "近15次", num: 15 }]
+            },
+            lineChartInit: true,
+            lineChart: null,
+            lineChartType: 'seven',
+        },
+        methods: {
+            changePage: function (e) {
+                var obj = event.srcElement || e.target; //FF只能识别event.target
+                if (obj && !$(obj).hasClass("select")) {
+                    var type = $(obj).attr("data-type");
+                    if (type) {
+                        $(obj).addClass("select").siblings().removeClass("select");
+                        var $this = this;
+                        this.pages.map(function (item, index) {
+                            if (type == item.id) {
+                                item.show = true;
+                                $this.initChart();
+                            }
+                            else
+                                item.show = false;
+                        });
+                    }
+                }
+            },
+            recordDelete: function (e) {
+                var obj = event.srcElement || e.target; //FF只能识别event.target
+                obj = $(obj).parent();
+                if (obj.hasClass("record_li") && confirm("是否确认删除？")) {
+                    var rid = obj.attr("data-rid");
+                    var $this = this;
+                    $.ajax({
+                        type: 'GET',
+                        url: '/sport/deleterecord',
+                        data: { uid: $this.userId, token: $this.token, rid: rid },
+                        success: function (a) {
+                            alert(a.msg);
+                            if (a.result == 1)
+                                obj.remove();
+                        },
+                        error: function (xhr, type) {
+                            console.log('联网失败，请检查网络！')
+                        }
+                    });
+                }
+            },
+            getRecords: function () {
+                if (this.userId && this.token && this.sportId) {
+                    var $this = this;
+                    $.ajax({
+                        type: 'GET',
+                        url: '/sport/getrecords',
+                        data: { uid: $this.userId, token: $this.token, sid: $this.sportId, npage: 1 },
+                        success: function (a) {
+                            if (a.result == 1) {
+                                $this.cleanData(a.data, a.model);
+                                $this.showMenu();
+                            } else {
+                                alert(a.msg);
+                                history.go(-1);
+                            }
+                        },
+                        error: function (xhr, type) {
+                            console.log('联网失败，请检查网络！')
+                        }
+                    });
+                } else
+                    history.go(-1);
+            },
+            cleanData: function (data, model) {
+                if (data && data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        data[i].remark_show = (data[i].remark && data[i].remark.length > 0);
+                    }
+                }
+                if (model && model.sportId > 0) {
+                    this.add_show = (model.status == 1 || model.status == 2);
+
+                    switch (Number(model.status)) {
+                        case 1:
+                            model.status = 'tip_ing';
+                            model.statusTip = '进行中'; break;
+                        case 2:
+                            model.status = 'tip_over';
+                            model.statusTip = '达成'; break;
+                        case 3:
+                            model.status = 'tip_deserted';
+                            model.statusTip = '放弃'; break;
+                        case 4:
+                            model.status = 'tip_deleted';
+                            model.statusTip = '删除'; break;
+                    }
+                    model.isPrivate = (model.isPrivate == 1 ? true : false);
+                }
+                this.record_list = data;
+                this.sport = model;
+            },
+            addRecord: function () {
+                localStorage['yunli_sportid'] = this.sportId;
+                localStorage['yunli_recordid'] = '';
+                window.parent.v_main.changeIframe('sportrecordedit');
+            },
+            showMenu: function () {
+                if (this.record_list) {
+                    this.record_length = this.record_list.length;
+                    if (this.record_length > 3)
+                        this.menu_show = true;
+                }
+            },
+            initSelect: function (length) {
+                if (length > 3)//显示最近7次
+                {
+                    this.lineType.data[0].show = true;
+                    this.lineType.show = true;
+                }
+                if (length > 10)//显示最近15次
+                {
+                    this.lineType.data[1].show = true;
+                }
+            },
+            changeChart: function (e) {
+                var obj = event.srcElement || e.target; //FF只能识别event.target
+                if (obj && !$(obj).hasClass("select")) {
+                    var type = $(obj).attr("data-type");
+                    if (this.lineChartType != type) {
+                        this.lineChartType = type;//更改到其他
+                        this.lineChartInit = true;
+                        this.initChart();
+                    }
+                }
+            },
+            initChart: function () {
+                if (this.lineChartInit && this.menu_show)//第一次加载列表
+                {
+                    //需要修改数据
+                    this.lineChartInit = false;
+                    if (this.record_list) {
+                        if (this.record_length > 3) {
+                            if (this.lineChart == null)//第一次进入，确定可选项
+                                this.initSelect(this.record_length);
+
+                            //临时数组
+                            var temp = {
+                                labels: [],
+                                datasets: [{
+                                    fillColor: "rgba(6, 229, 255, 0.5)",
+                                    strokeColor: "rgba(0,220,220,1)",
+                                    pointColor: "#2294A4",
+                                    pointStrokeColor: "rgba(0,220,220,1)",
+                                    scaleFontColor: "#fff",
+                                    scaleBackdropPaddingY: 1,
+                                    scaleBackdropPaddingX: 1,
+                                    data: []
+                                }]
+                            };
+                            for (var i = 0; i < this.lineType.data.length; i++) {
+                                this.lineType.data[i].isselect = false;
+                                if (this.lineChartType == this.lineType.data[i].type) {
+                                    this.lineType.data[i].isselect = true;
+                                    var _length = (this.record_length > this.lineType.data[i].num ? this.lineType.data[i].num : this.record_length);
+                                    for (var j = (_length - 1) ; j >= 0; j--) {
+                                        temp.labels.push(this.record_list[j].recordTimeStr.substr(5, 5));
+                                        temp.datasets[0].data.push(this.record_list[j].recordNum);
+                                    }
+                                }
+                            }
+                            this.lineChart = new Chart(document.getElementById("line_canvas").getContext("2d")).Line(temp);
+                        }
+                    }
+                }
+            }
+        },
+        ready: function () {
+            this.userId = this.userId || localStorage["yunli_uid"];
+            this.token = this.token || localStorage["yunli_token"];
+            this.sportId = this.sportId || localStorage["yunli_sportid"];
+            this.getRecords();
+        }
+    });
+</script>
+</html>

@@ -1,0 +1,162 @@
+﻿<!--<!DOCTYPE html><html><head><meta charset="utf-8" /><title>Document</title></head><body></body></html>-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>添加记录</title>
+    <link href="/css/appbase.min.css" rel="stylesheet" />
+    <link href="/css/icon/iconfont.css" rel="stylesheet" />
+    <style type="text/css">
+        html,body{height:auto;}
+        .edit_bg {
+            padding-top: 1rem;
+        }
+
+        .edit_bg p {
+            margin: 1rem auto;
+            width: 100%;
+            text-align: center;
+        }
+
+        .edit_bg p:nth-last-child(2) {
+            text-align: left;
+        }
+
+        .edit_bg p:nth-last-child(2) label {
+            margin-left: 7%;
+            color: #BDBDBD;
+        }
+
+        .edit_bg p input[type='text'], .edit_bg p input[type='tel'], .edit_bg p input[type='date'] {
+            background-color: #fff;
+            padding: .6rem 4%;
+            width: 80%;
+            border-radius: 1rem;
+            font-family: "黑体";
+        }
+
+        #btn_edit {
+            margin: 4rem auto;
+            border-radius: .5rem;
+            background-color: #FCBA04;
+            display: block;
+            width: 50%;
+            text-align: CENTER;
+            color: #fff;
+            font-size: 1.5rem;
+            padding: .5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <section id="record_edit" class="page">
+        <div class="edit_bg">
+            <p v-for="tr_td in tr_tds">
+                <label for="{{tr_td.input_id}}">{{tr_td.title}}</label><input id="{{tr_td.input_id}}" v-model="tr_td.value" maxlength="{{tr_td.maxlength}}" placeholder="{{tr_td.placeholder}}" type="{{tr_td.type}}" />
+            </p>
+            <a id="btn_edit" v-on:click="editRecord">{{btn_text}}</a>
+        </div>
+    </section>
+</body>
+<script src="/script/zeptojs.min.js"></script>
+<script src="/script/appbase.js"></script>
+<script src="/script/vue.js"></script>
+<script type="text/javascript">
+    var v_record_edit = new Vue({
+        el: '#record_edit',
+        data: {
+            msg_class: 'red',
+            msg: '',
+            userId: null,
+            token: null,
+            sportId:null,
+            recordId: null,
+            btn_text: '添加',
+            tr_tds: [
+                { title: '', input_id: 'txt_recordNum', maxlength: '20', placeholder: '完成量', type: 'tel', value: '' },
+                { title: '', input_id: 'txt_recordTime', maxlength: '200', placeholder: '完成时间', type: 'date', value: (new Date()).Format("yyyy-MM-dd") },
+                { title: '', input_id: 'txt_remark', maxlength: '200', placeholder: '心得体会', type: 'text', value: '' },
+            ]
+        },
+        methods: {
+            getRecord: function () {
+                if (this.userId && this.token) {
+                    if (this.recordId) {
+                        var $this = this;
+                        $.ajax({
+                            type: 'GET',
+                            url: '/sport/getRecord',
+                            data: { uid: $this.userId, token: $this.token, rid: $this.recordId,sid:$this.sportId },
+                            success: function (a) {
+                                if (a.result == 1) {
+                                    $this.cleanData(a.data);
+                                }
+                                else {
+                                    alert(a.msg);
+                                    history.go(-1);
+                                    //window.parent.v_main.changeIframe('sportrecords');
+                                }
+                            },
+                            error: function (xhr, type) {
+                                console.log('联网失败，请检查网络！')
+                            }
+                        });
+                    }
+                } else
+                    history.go(-1);
+            },
+            cleanData: function (data) {
+                this.tr_tds[0].value = data.recordNum;
+                this.tr_tds[1].value = data.recordTime;
+                this.tr_tds[2].value = data.remark;
+
+                this.btn_text = "更新";
+            },
+            editRecord: function () {
+                var data = { uid: this.userId, token: this.token, sid: this.sportId, rid: this.recordId, num: this.tr_tds[0].value, time: this.tr_tds[1].value, remark: this.tr_tds[2].value };
+                var err = this.checkData(data);
+                if (err.length > 0)
+                    alert(err);
+                else
+                {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/sport/addOrEditRecord',
+                        data: data,
+                        success: function (a) {
+                            if (a.result == 1) {
+                                alert(a.msg);
+                                window.parent.v_main.iframe_refresh = true;
+                                history.go(-1);
+                                //window.parent.v_main.changeIframe('sportrecords');
+                            }
+                            else
+                                alert(a.msg);
+                        },
+                        error: function (xhr, type) {
+                            console.log('联网失败，请检查网络！')
+                        }
+                    });
+                }
+            },
+            checkData: function (data) {
+                var err = "";
+                if (Number(data.num) == NaN)
+                    err += '完成量不能为空,';
+                if (err.length > 0) {
+                    err = err.substr(0, err.length - 1) + '！';
+                }
+                return err;
+            }
+        },
+        ready: function () {
+            this.userId = this.userId || localStorage["yunli_uid"];
+            this.token = this.token || localStorage["yunli_token"];
+            this.sportId = this.sportId || localStorage['yunli_sportid'];
+            this.recordId = this.recordId || localStorage['yunli_recordid'];
+            this.getRecord();
+        }
+    });
+</script>
+</html>
